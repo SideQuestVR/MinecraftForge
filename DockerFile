@@ -1,142 +1,48 @@
-# Java Version
-ARG JAVA_VERSION=11
+FROM ubuntu:20.04
+LABEL maintainer="Shaluffob <shaluffob@sidequestvr.com>"
 ARG MINECRAFT_VERSION=1.12.2
 ARG MOHIST_VERSION=169
-
-################################
-### We use a java base image ###
-################################
-FROM openjdk:${JAVA_VERSION} AS build
-
-#############################################
-### Maintained by shaluffob               ###
-### Contact: shaluffob@sidequestvr.com    ###
-#############################################
-LABEL maintainer="Shaluffob <shaluffob@sidequestvr.com>"
-
-#################
-### Arguments ###
-#################
-ARG MOHIST_DOWNLOAD_URL=https://ci.codemc.io/job/Mohist-Community/job/Mohist-$MINECRAFT_VERSION/lastBuild/artifact/projects/mohist/build/libs/mohist-$MINECRAFT_VERSION-$MOHIST_VERSION-server.jar
-ARG MINECRAFT_BUILD_USER=minecraft-build
-ENV MINECRAFT_BUILD_PATH=/opt/minecraft
-
-#########################
-### Working directory ###
-#########################
-WORKDIR ${MINECRAFT_BUILD_PATH}
-
-#######################
-### Download mohist ###
-#######################
-ADD ${MOHIST_DOWNLOAD_URL} mohist.jar
-
-############
-### User ###
-############
-RUN useradd -ms /bin/bash ${MINECRAFT_BUILD_USER} && \
-    chown ${MINECRAFT_BUILD_USER} ${MINECRAFT_BUILD_PATH} -R
-
-USER ${MINECRAFT_BUILD_USER}
-
-####################################
-### Run mohist to install things ###
-####################################
-RUN java -jar ${MINECRAFT_BUILD_PATH}/mohist.jar; exit 0
-
-###########################
-### Running environment ###
-###########################
-FROM openjdk:${JAVA_VERSION} AS runtime
-
-##########################
-### Environment & ARGS ###
-##########################
+ARG MOHIST_DOWNLOAD_URL=https://ci.codemc.io/job/Mohist-Community/job/Mohist-${MINECRAFT_VERSION}/lastBuild/artifact/projects/mohist/build/libs/mohist-${MINECRAFT_VERSION}-${MOHIST_VERSION}-server.jar
+ARG JAVA_DOWNLOAD_URL=https://github.com/Shawiizz/shawiizz.github.io/releases/download/jrezipfiles/javalinux64.zip
 ENV MINECRAFT_PATH=/opt/minecraft
-ENV SERVER_PATH=${MINECRAFT_PATH}/server
-ENV DATA_PATH=${MINECRAFT_PATH}/data
-ENV LOGS_PATH=${MINECRAFT_PATH}/logs
-ENV CONFIG_PATH=${MINECRAFT_PATH}/config
-ENV WORLDS_PATH=${MINECRAFT_PATH}/worlds
-ENV PLUGINS_PATH=${MINECRAFT_PATH}/plugins
+WORKDIR ${MINECRAFT_PATH}
+RUN apt-get update
+RUN apt-get install unzip python curl -y
+RUN curl -L ${MOHIST_DOWNLOAD_URL} --output mohist.jar
+RUN curl -L ${JAVA_DOWNLOAD_URL} --output java.zip
+RUN echo "eula=true" > eula.txt
+RUN unzip java.zip -d ./java/
+RUN chmod +x ./java/bin/java
+ENV JAVA_PATH=${MINECRAFT_PATH}/java/bin/java
+#RUN ./bin/java -jar ${MINECRAFT_BUILD_PATH}/mohist.jar; exit 0
 ENV PROPERTIES_LOCATION=${CONFIG_PATH}/server.properties
-ENV JAVA_HEAP_SIZE=48G
-ENV JAVA_ARGS="-server -Dcom.mojang.eula.agree=true"
+ENV JAVA_HEAP_SIZE=4G
+ENV JAVA_ARGS="-server"
 ENV SPIGOT_ARGS="--nojline"
 ENV PAPER_ARGS=""
-
-#################
-### Libraries ###
-#################
+ENV CONFIG_PATH=${MINECRAFT_PATH}/config
+ENV PLUGINS_PATH=${MINECRAFT_PATH}/plugins
+ENV MODS_PATH=${MINECRAFT_PATH}/mods
+ENV WORLDS_PATH=${MINECRAFT_PATH}/worlds
+ENV PROPERTIES_LOCATION=${CONFIG_PATH}/server.properties
+RUN mkdir ${CONFIG_PATH} ${PLUGINS_PATH} ${WORLDS_PATH} && \
+    chmod 777 ${CONFIG_PATH} ${PLUGINS_PATH} ${WORLDS_PATH}
 ADD https://bootstrap.pypa.io/get-pip.py .
-RUN python get-pip.py
-RUN pip install mcstatus
-
-###################
-### Healthcheck ###
-###################
-HEALTHCHECK --interval=10s --timeout=5s --start-period=120s \
-    CMD mcstatus localhost:$( cat $PROPERTIES_LOCATION | grep "server-port" | cut -d'=' -f2 ) ping
-
-#########################
-### Working directory ###
-#########################
-WORKDIR ${SERVER_PATH}
-
-###########################################
-### Obtain runable jar from build stage ###
-###########################################
-COPY --from=build /opt/minecraft/mohist.jar ${SERVER_PATH}/
-
-######################
-### Obtain scripts ###
-######################
-ADD docker-entrypoint.sh docker-entrypoint.sh
-RUN chmod +x docker-entrypoint.sh
-
-############
-### User ###
-############
-RUN addgroup minecraft && \
-    useradd -ms /bin/bash minecraft -g minecraft -d ${MINECRAFT_PATH} && \
-    mkdir ${LOGS_PATH} ${DATA_PATH} ${WORLDS_PATH} ${PLUGINS_PATH} ${CONFIG_PATH} && \
-    chown -R minecraft:minecraft ${MINECRAFT_PATH}
-
-USER minecraft
-
-#########################
-### Setup environment ###
-#########################
-# Create symlink for plugin volume as hotfix for some plugins who hard code their directories
-RUN ln -s $PLUGINS_PATH $SERVER_PATH/plugins && \
-    # Create symlink for persistent data
-    ln -s $DATA_PATH/banned-ips.json $SERVER_PATH/banned-ips.json && \
-    ln -s $DATA_PATH/banned-players.json $SERVER_PATH/banned-players.json && \
-    ln -s $DATA_PATH/help.yml $SERVER_PATH/help.yml && \
-    ln -s $DATA_PATH/ops.json $SERVER_PATH/ops.json && \
-    ln -s $DATA_PATH/permissions.yml $SERVER_PATH/permissions.yml && \
-    ln -s $DATA_PATH/whitelist.json $SERVER_PATH/whitelist.json && \
-    # Create symlink for logs
-    ln -s $LOGS_PATH $SERVER_PATH/logs
-
-###############
-### Volumes ###
-###############
-VOLUME "${CONFIG_PATH}"
-VOLUME "${WORLDS_PATH}"
-VOLUME "${PLUGINS_PATH}"
-VOLUME "${DATA_PATH}"
-VOLUME "${LOGS_PATH}"
-
-#############################
-### Expose minecraft port ###
-#############################
-EXPOSE 25565
-
-######################################
-### Entrypoint is the start script ###
-######################################
-ENTRYPOINT [ "./docker-entrypoint.sh" ]
-
-# Run Command
-CMD [ "serve" ]
+RUN python get-pip.py --user
+RUN /root/.local/bin/pip install mcstatus
+#HEALTHCHECK --interval=10s --timeout=5s --start-period=120s \
+#    CMD mcstatus localhost:$( cat $PROPERTIES_LOCATION | grep "server-port" | cut -d'=' -f2 ) ping
+EXPOSE 25565 25575 8123
+CMD ${JAVA_PATH} -jar $JAVA_ARGS \
+    -Xmx$JAVA_HEAP_SIZE -Xms$JAVA_HEAP_SIZE \
+    $MINECRAFT_PATH/mohist.jar \
+    $SPIGOT_ARGS \
+    --bukkit-settings $CONFIG_PATH/bukkit.yml \
+    --plugins $PLUGINS_PATH \
+    --world-dir $WORLDS_PATH \
+    --spigot-settings $CONFIG_PATH/spigot.yml \
+    --commands-settings $CONFIG_PATH/commands.yml \
+    --config $PROPERTIES_LOCATION \
+    --paper-settings $CONFIG_PATH/paper.yml \
+    $PAPERSPIGOT_ARGS
+#ENTRYPOINT ["tail", "-f", "/dev/null"]
