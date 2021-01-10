@@ -3,6 +3,8 @@ services:
 
   minecraft:
     image: sidequest/mohist
+    stdin_open: true
+    tty: true
     ports:
       - 25575:25575
       - 25565:25565
