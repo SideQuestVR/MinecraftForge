@@ -2,7 +2,7 @@ FROM ubuntu:20.04
 LABEL maintainer="Shaluffob <shaluffob@sidequestvr.com>"
 ARG MINECRAFT_VERSION=1.12.2
 ARG MOHIST_VERSION=169
-ARG MOHIST_DOWNLOAD_URL=https://ci.codemc.io/job/Mohist-Community/job/Mohist-${MINECRAFT_VERSION}/lastBuild/artifact/projects/mohist/build/libs/mohist-${MINECRAFT_VERSION}-${MOHIST_VERSION}-server.jar
+ARG MOHIST_DOWNLOAD_URL=https://ci.codemc.io/job/Mohist-Community/job/Mohist-${MINECRAFT_VERSION}/${MOHIST_VERSION}/artifact/projects/mohist/build/libs/mohist-${MINECRAFT_VERSION}-${MOHIST_VERSION}-server.jar
 ARG JAVA_DOWNLOAD_URL=https://github.com/Shawiizz/shawiizz.github.io/releases/download/jrezipfiles/javalinux64.zip
 ENV MINECRAFT_PATH=/opt/minecraft
 WORKDIR ${MINECRAFT_PATH}
