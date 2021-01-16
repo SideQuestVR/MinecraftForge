@@ -7,6 +7,6 @@ mv docker-credential-secretservice /usr/bin/
 rm docker-credential-secretservice-v0.6.3-amd64.tar.gz
 mkdir /opt/minecraft /opt/minecraft/plugins /opt/minecraft/worlds /opt/minecraft/mods /opt/minecraft/config
 chmod 777 /opt/minecraft -R
-docker build -t sidequest/minecraft -f Dockerfile .
+docker build -t sidequest/minecraft -f DockerFile .
 docker swarm init
 docker stack deploy -c compose.yml sq_mc
