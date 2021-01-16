@@ -16,7 +16,7 @@ RUN chmod +x ./java/bin/java
 ENV JAVA_PATH=${MINECRAFT_PATH}/java/bin/java
 #RUN ./bin/java -jar ${MINECRAFT_BUILD_PATH}/mohist.jar; exit 0
 ENV PROPERTIES_LOCATION=${CONFIG_PATH}/server.properties
-ENV JAVA_HEAP_SIZE=4G
+ENV JAVA_HEAP_SIZE=54G
 ENV JAVA_ARGS="-server"
 ENV SPIGOT_ARGS="--nojline"
 ENV PAPER_ARGS=""

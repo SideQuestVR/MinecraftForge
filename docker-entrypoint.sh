@@ -7,7 +7,7 @@ if [[ "$1" = 'serve' ]];  then
   exec java -jar $JAVA_ARGS \
     -Xmx$JAVA_HEAP_SIZE -Xms$JAVA_HEAP_SIZE \
     $SERVER_PATH/mohist.jar \
-    $SPIGOT_ARGS \
+    $SPIGOT_ARGS -Dfml.queryResult=confirm \
     --bukkit-settings $CONFIG_PATH/bukkit.yml \
     --plugins $PLUGINS_PATH \
     --world-dir $WORLDS_PATH \

@@ -14,4 +14,7 @@ services:
       - /opt/minecraft/worlds:/opt/minecraft/worlds
       - /opt/minecraft/plugins:/opt/minecraft/plugins
       - /opt/minecraft/mods:/opt/minecraft/mods
-
+      - /opt/minecraft/ops.json:/opt/minecraft/ops.json
+      - /opt/minecraft/banned-ips.json:/opt/minecraft/banned-ips.json
+      - /opt/minecraft/banned-players.json:/opt/minecraft/banned-players.json
+      - /opt/minecraft/whitelist.json:/opt/minecraft/whitelist.json
