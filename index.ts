@@ -38,10 +38,5 @@ app.get('/', async (request, response) => {
     response.sendFile(__dirname + '/static/index.html')
 })
 
-// listen for requests :)
-const listener = app.listen(80, () => {
-    console.log("Your app is listening on port " + listener.address().port);
-});
-
 httpServer.listen(80);
 httpsServer.listen(443);
