@@ -6,5 +6,5 @@ RUN apt-get -y install jq
 RUN yarn
 RUN yarn global add forever
 EXPOSE 80
-CMD cd /usr/src/app/modules/$APP_PATH/ && forever -c "../../node_modules/.bin/ts-node" index.ts
+CMD cd /usr/src/app/ && forever -c "../../node_modules/.bin/ts-node" index.ts
 
