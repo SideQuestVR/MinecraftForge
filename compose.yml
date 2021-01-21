@@ -18,3 +18,8 @@ services:
       - /opt/minecraft/banned-ips.json:/opt/minecraft/banned-ips.json
       - /opt/minecraft/banned-players.json:/opt/minecraft/banned-players.json
       - /opt/minecraft/whitelist.json:/opt/minecraft/whitelist.json
+
+  express:
+    image: sidequest/express
+    ports:
+      - 80:80
