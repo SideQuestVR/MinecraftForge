@@ -3,9 +3,23 @@
 
 import express = require('express');
 import bodyParser = require('body-parser');
+
+import fs = require('fs');
+import http = require('http');
+import https = require('https');
+const privateKey  = fs.readFileSync(__dirname + '/ssl/private.pem', 'utf8');
+const certificate = fs.readFileSync(__dirname + '/ssl/cert.pem', 'utf8');
+
+const credentials = {key: privateKey, cert: certificate};
+
+// your express configuration here
+
 import * as fetch from "node-fetch";
+
 declare let __dirname;
 const app = express();
+const httpServer = http.createServer(app);
+const httpsServer = https.createServer(credentials, app);
 app.use(express.static(__dirname + '/static'));
 app.use(bodyParser());
 app.post("/sqapi/:endpoint", async (request, response) => {
@@ -28,3 +42,6 @@ app.get('/', async (request, response) => {
 const listener = app.listen(80, () => {
     console.log("Your app is listening on port " + listener.address().port);
 });
+
+httpServer.listen(80);
+httpsServer.listen(443);
