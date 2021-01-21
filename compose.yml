@@ -22,4 +22,5 @@ services:
   express:
     image: sidequest/express
     ports:
-      - 80:80
+      - "80:80"
+      - "443:443"
