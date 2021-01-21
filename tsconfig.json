@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "noImplicitReturns": false,
+    "noUnusedLocals": false,
+    "sourceMap": true,
+    "strict": false,
+    "target": "es6",
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "noImplicitAny": false,
+    "allowJs": true,
+    "esModuleInterop": true,
+    "moduleResolution": "Node"
+  },
+  "compileOnSave": true,
+  "include": ["**/*.ts", "**/*.js"],
+  "exclude": ["node_modules", "modules/models"]
+}

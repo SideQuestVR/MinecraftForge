@@ -1,12 +1,13 @@
 // we've started you off with Express (https://expressjs.com/)
 // but feel free to use whatever libraries or frameworks you'd like through `package.json`.
-const express = require("express");
-const bodyParser = require("body-parser");
-const fetch = require("node-fetch");
+
+import express = require('express');
+import bodyParser = require('body-parser');
+import * as fetch from "node-fetch";
+declare let __dirname;
 const app = express();
-app.use(express.static(__dirname + 'static'));
+app.use(express.static(__dirname + '/static'));
 app.use(bodyParser());
-// https://expressjs.com/en/starter/basic-routing.html
 app.post("/sqapi/:endpoint", async (request, response) => {
     let resp = await fetch('https://api.sidequestvr.com/' + request.params.endpoint, {
         method: 'POST',
@@ -20,7 +21,7 @@ app.post("/sqapi/:endpoint", async (request, response) => {
     response.json(await resp.json())
 });
 app.get('/', async (request, response) => {
-    response.sendFile(__dirname + 'static/index.html')
+    response.sendFile(__dirname + '/static/index.html')
 })
 
 // listen for requests :)
